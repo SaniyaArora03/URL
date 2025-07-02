@@ -2,9 +2,17 @@ import { createServer } from 'http';
 import { readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const PORT = 3002;
-const DATA_FILE = path.join("data", "links.json");
+// Fix ES Module __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Use Render's port (no hardcoded fallback!)
+const PORT = process.env.PORT;
+
+const DATA_FILE = path.join(__dirname, "data", "links.json");
 
 // Load saved links from JSON file
 const loadLinks = async () => {
@@ -14,7 +22,7 @@ const loadLinks = async () => {
     } catch (error) {
         if (error.code === 'ENOENT') {
             const empty = {};
-            await writeFile(DATA_FILE, JSON.stringify(empty)); // create empty file if not found
+            await writeFile(DATA_FILE, JSON.stringify(empty));
             return empty;
         }
         throw error;
@@ -26,7 +34,7 @@ const saveLinks = async (links) => {
     await writeFile(DATA_FILE, JSON.stringify(links));
 };
 
-// Serve static files (like index.html, style.css)
+// Serve static files
 const serveFile = async (res, filePath, contentType) => {
     try {
         const data = await readFile(filePath);
@@ -38,23 +46,22 @@ const serveFile = async (res, filePath, contentType) => {
     }
 };
 
-// Create the server
+// Create server
 const server = createServer(async (req, res) => {
     if (req.method === 'GET') {
         if (req.url === '/') {
-            return serveFile(res, path.join("public", "index.html"), "text/html");
+            return serveFile(res, path.join(__dirname, "public", "index.html"), "text/html");
         } else if (req.url === '/style.css') {
-            return serveFile(res, path.join("public", "style.css"), "text/css");
+            return serveFile(res, path.join(__dirname, "public", "style.css"), "text/css");
         } else if (req.url === '/links') {
             const links = await loadLinks();
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(links));
         } else {
-            // Check if user is visiting a short link like /abc123
             const links = await loadLinks();
-            const code = req.url.slice(1); // remove '/' from url
+            const code = req.url.slice(1);
             if (links[code]) {
-                res.writeHead(302, { Location: links[code] });  //redirect
+                res.writeHead(302, { Location: links[code] });
                 return res.end();
             } else {
                 res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -63,7 +70,6 @@ const server = createServer(async (req, res) => {
         }
     }
 
-    // Shortening logic
     if (req.method === 'POST' && req.url === '/shorten') {
         const links = await loadLinks();
 
@@ -99,8 +105,7 @@ const server = createServer(async (req, res) => {
     }
 });
 
-// Start the server
+// Start server
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on http://0.0.0.0:${PORT}`);
+    console.log(`✅ Server running on http://0.0.0.0:${PORT}`);
 });
-
