@@ -50,4 +50,41 @@ h2{
     padding-bottom: 2rem;
 
 }
+@media (max-width: 768px) {
+  .container {
+    width: 90%;
+    margin: 2rem auto;
+    padding: 1.5rem;
+  }
+
+  form div {
+    width: 90%;
+  }
+
+  h1, h2 {
+    font-size: 1.5rem;
+    margin: 1rem 0;
+  }
+
+  button {
+    width: 80%;
+    font-size: 1rem;
+  }
+}
+@media (max-width: 480px) {
+  h1, h2 {
+    font-size: 1.2rem;
+  }
+
+  button {
+    width: 90%;
+    font-size: 0.9rem;
+  }
+
+  form div {
+    width: 100%;
+  }
+}
+
+
 
