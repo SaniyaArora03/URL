@@ -22,62 +22,41 @@
             </div>
             <button type="submit">Shorten</button>
         </form>
-
-        <h2>Shortened URLs</h2>
-        <ul id="shortened-urls"></ul>
+<!-- show new url here -->
+        <div id="latest-url" class="latest-url-box" style="margin-top: 20px;"></div> 
     </div>
 
 <script>
-    //getting reference
-    document.getElementById('shorten-form').addEventListener('submit',async(event)=>{
-        //prevent auto submit
+    document.getElementById('shorten-form').addEventListener('submit', async (event) => {
         event.preventDefault();
-        //Formdata helps to get data of form from user
-        const formData=new FormData(event.target);
-       // console.log(formData.get('url')); //we will get the value associated with key url
-       const url = formData.get('url');
-       const shortCode = formData.get('shortCode');
 
-       try{
-        const response=   await fetch("/shorten",{
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({url,shortCode})
-        });
-        if(response.ok){
-             fetchShortenedURL();
-            alert("Form submitted successfully");
-            event.target.reset();  //auto refresh
-        }else{
-            const error=await response.text();
-            alert("error")
-        }
-       }catch(error){
+        const formData = new FormData(event.target);
+        const url = formData.get('url');
+        const shortCode = formData.get('shortCode');
+
+        try {
+            const response = await fetch("/shorten", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url, shortCode })
+            });
+
+            if (response.ok) {
+                const shortenedLink = `${window.location.origin}/${shortCode}`;
+                const displayDiv = document.getElementById('latest-url');
+                displayDiv.innerHTML = `
+                    <p><strong>Your shortened URL:</strong> 
+                    <a href="${shortenedLink}" target="_blank">${shortenedLink}</a></p>
+                `;
+                event.target.reset();
+            } else {
+                const error = await response.text();
+                alert("Error: " + error);
+            }
+        } catch (error) {
             console.log(error);
-       }
-
-
-    })
-    //func to show urls
-    const fetchShortenedURL=async()=>{
-        const response=await fetch("/links");
-        const links=await response.json();
-        //getting reference of place to show urls
-        const list=document.getElementById('shortened-urls');
-        list.innerHTML=""; //to ensure list is empty initially
-
-        for(const[shortCode,url] of Object.entries(links)){
-            const li=document.createElement('li'); //create element for adding links
-            const truncatedURL=url.length>=30? `${url.slice(0,30)}...`:url;
-            li.innerHTML=`<a href="/${shortCode}" target="_blank">${window.location.origin}/${shortCode}</a> -${truncatedURL}`; //window.loc.origin is used to get the current url location ie https localhost
-            list.appendChild(li);
         }
-
-    }
-
-
-    fetchShortenedURL();
-
+    });
 
 </script>    
 </body>
