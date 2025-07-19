@@ -28,14 +28,11 @@ h1{
 }
 button{
     border-radius: 10px;
-    padding: 0.5rem;
+    padding: 0.5rem 1rem;
     background-color: black;
     color: beige;
     font-family: urbanist;
-    margin-left: 42%;
-    margin-right: 42%;
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+    margin: 2rem auto;
 }
 form div{
     margin-left: 30%;
