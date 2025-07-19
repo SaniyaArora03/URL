@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Use Render's port (no hardcoded fallback!)
-const PORT = process.env.PORT;
+const PORT = process.env.PORT ||3000;
 
 const DATA_FILE = path.join(__dirname, "data", "links.json");
 
